@@ -1,5 +1,18 @@
 package com.darkha.smarthelmetmanager;
 
+import android.app.Activity;
+import android.content.Context;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.List;
+
 class Functions {
     private static final Functions ourInstance = new Functions();
     private final char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -46,5 +59,34 @@ class Functions {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public JSONArray wrapList(List<ListDataWrapper> data) {
+        JSONArray array = new JSONArray();
+        for (ListDataWrapper item : data) {
+            array.put(item.toJSON());
+        }
+        return array;
+    }
+
+    public List<ListDataWrapper> dewrapList(JSONArray array) {
+        List<ListDataWrapper> data = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            try {
+                data.add(new ListDataWrapper(array.getJSONObject(i)));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return data;
+    }
+
+    public void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        View f = activity.getCurrentFocus();
+        if (null != f && null != f.getWindowToken() && EditText.class.isAssignableFrom(f.getClass()))
+            imm.hideSoftInputFromWindow(f.getWindowToken(), 0);
+        else
+            activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }
