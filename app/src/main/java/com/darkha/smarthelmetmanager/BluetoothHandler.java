@@ -300,7 +300,7 @@ public class BluetoothHandler {
         this.onRawMessage = onRawMessage;
     }
 
-    private void setOnMessage(OnMessage onMessage) {
+    public void setOnMessage(OnMessage onMessage) {
         this.onMessage = onMessage;
     }
 

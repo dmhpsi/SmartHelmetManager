@@ -24,6 +24,7 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
         SettingsFragment.OnFragmentInteractionListener {
 
     private static final int PERMISSIONS_REQUEST_COARSE_LOCATION = 99;
+    private static final int PERMISSIONS_REQUEST_SEND_SMS = 98;
     BottomNavigationView bottomNavigationView;
     ViewPager viewPager;
     DevicesFragment devicesFragment;
@@ -35,7 +36,7 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        locationPermissionCheck();
+        permissionCheck();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_job);
         bluetooth = new BluetoothHandler(this);
@@ -106,19 +107,13 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
         bluetooth.onActivityResult(requestCode, resultCode);
     }
 
-    void locationPermissionCheck() {
+    void permissionCheck() {
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(JobActivity.this,
                 Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(JobActivity.this,
                     Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
                 new AlertDialog.Builder(JobActivity.this)
                         .setMessage("This app need to access location service in order to work. Please grant the permission.")
                         .setPositiveButton(R.string.ok, (dialog, which) -> {
@@ -130,17 +125,35 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
                         .create()
                         .show();
             } else {
-                // No explanation needed; request the permission
                 ActivityCompat.requestPermissions(JobActivity.this,
                         new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                         PERMISSIONS_REQUEST_COARSE_LOCATION);
 
-                // PERMISSIONS_REQUEST_COARSE_LOCATION is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
-        } else {
-            // Permission has already been granted
+        }
+
+        if (ContextCompat.checkSelfPermission(JobActivity.this,
+                Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(JobActivity.this,
+                    Manifest.permission.SEND_SMS)) {
+                new AlertDialog.Builder(JobActivity.this)
+                        .setMessage("This app need to send SMS in order to work. Please grant the permission.")
+                        .setPositiveButton(R.string.ok, (dialog, which) -> {
+                            dialog.dismiss();
+                            ActivityCompat.requestPermissions(JobActivity.this,
+                                    new String[]{Manifest.permission.SEND_SMS},
+                                    PERMISSIONS_REQUEST_SEND_SMS);
+                        })
+                        .create()
+                        .show();
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(JobActivity.this,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        PERMISSIONS_REQUEST_SEND_SMS);
+            }
         }
 
     }
@@ -150,21 +163,18 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
                                            String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_COARSE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                } else {
-                    locationPermissionCheck();
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                if (!(grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    permissionCheck();
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request.
+            case PERMISSIONS_REQUEST_SEND_SMS: {
+                if (!(grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    permissionCheck();
+                }
+            }
         }
     }
 

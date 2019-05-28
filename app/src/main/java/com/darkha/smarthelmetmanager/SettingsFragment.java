@@ -118,7 +118,7 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        TextWatcher userInfoTechWatcher = new TextWatcher() {
+        TextWatcher userInfoTextWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -146,10 +146,10 @@ public class SettingsFragment extends Fragment {
             }
         };
 
-        editName.removeTextChangedListener(userInfoTechWatcher);
-        editAllergy.removeTextChangedListener(userInfoTechWatcher);
-        editAddress.removeTextChangedListener(userInfoTechWatcher);
-        editBloodType.removeTextChangedListener(userInfoTechWatcher);
+        editName.removeTextChangedListener(userInfoTextWatcher);
+        editAllergy.removeTextChangedListener(userInfoTextWatcher);
+        editAddress.removeTextChangedListener(userInfoTextWatcher);
+        editBloodType.removeTextChangedListener(userInfoTextWatcher);
 
         try {
             JSONObject info = new JSONObject(tinyDB.getString(getContext().getString(R.string.key_user_info)));
@@ -169,10 +169,10 @@ public class SettingsFragment extends Fragment {
             e.printStackTrace();
         }
 
-        editName.addTextChangedListener(userInfoTechWatcher);
-        editAllergy.addTextChangedListener(userInfoTechWatcher);
-        editAddress.addTextChangedListener(userInfoTechWatcher);
-        editBloodType.addTextChangedListener(userInfoTechWatcher);
+        editName.addTextChangedListener(userInfoTextWatcher);
+        editAllergy.addTextChangedListener(userInfoTextWatcher);
+        editAddress.addTextChangedListener(userInfoTextWatcher);
+        editBloodType.addTextChangedListener(userInfoTextWatcher);
 
         view.findViewById(R.id.button_save_user_info).setOnClickListener(v -> {
             JSONObject info = new JSONObject();
@@ -195,7 +195,7 @@ public class SettingsFragment extends Fragment {
         EditText editNumber2 = view.findViewById(R.id.edit_number_2);
         EditText editNumber3 = view.findViewById(R.id.edit_number_3);
 
-        TextWatcher phoneTechWatcher = new TextWatcher() {
+        TextWatcher phoneTextWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -222,9 +222,9 @@ public class SettingsFragment extends Fragment {
             }
         };
 
-        editNumber1.removeTextChangedListener(phoneTechWatcher);
-        editNumber2.removeTextChangedListener(phoneTechWatcher);
-        editNumber3.removeTextChangedListener(phoneTechWatcher);
+        editNumber1.removeTextChangedListener(phoneTextWatcher);
+        editNumber2.removeTextChangedListener(phoneTextWatcher);
+        editNumber3.removeTextChangedListener(phoneTextWatcher);
 
         try {
             JSONObject info = new JSONObject(tinyDB.getString(getContext().getString(R.string.key_phone_numbers)));
@@ -239,9 +239,9 @@ public class SettingsFragment extends Fragment {
             e.printStackTrace();
         }
 
-        editNumber1.addTextChangedListener(phoneTechWatcher);
-        editNumber2.addTextChangedListener(phoneTechWatcher);
-        editNumber3.addTextChangedListener(phoneTechWatcher);
+        editNumber1.addTextChangedListener(phoneTextWatcher);
+        editNumber2.addTextChangedListener(phoneTextWatcher);
+        editNumber3.addTextChangedListener(phoneTextWatcher);
 
         view.findViewById(R.id.button_save_phone).setOnClickListener(v -> {
             JSONObject info = new JSONObject();

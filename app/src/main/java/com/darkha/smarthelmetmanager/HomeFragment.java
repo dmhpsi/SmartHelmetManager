@@ -1,13 +1,13 @@
 package com.darkha.smarthelmetmanager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -165,10 +165,23 @@ public class HomeFragment extends Fragment {
                 android.provider.Settings.System.CONTENT_URI, true,
                 audioContentObserver);
 
-        view.findViewById(R.id.test_call).setOnClickListener(v -> {
-            String phone = "+84386648412";
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phone, null, "đm tuấn", null, null);
+//        view.findViewById(R.id.test_call).setOnClickListener(v -> {
+////            String phone = "+84386648412";
+////            SmsManager smsManager = SmsManager.getDefault();
+////            smsManager.sendTextMessage(phone, null, "đm tuấn", null, null);
+//            new Handler().postDelayed(() -> {
+//                Intent intent = new Intent(getContext(), PreAlarmActivity.class);
+//                startActivity(intent);
+//            }, 10);
+//
+//        });
+
+        bluetooth.setOnMessage(message -> {
+            if (message.startsWith("warning")) {
+                Intent intent = new Intent(getContext(), PreAlarmActivity.class);
+                startActivity(intent);
+                Log.e("message", "warning");
+            }
         });
 
         // Inflate the layout for this fragment

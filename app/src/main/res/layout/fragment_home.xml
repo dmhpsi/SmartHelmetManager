@@ -82,9 +82,10 @@
 
             <ImageButton
                 android:id="@+id/button_toggle_connection"
-                style="@style/Button"
+                android:backgroundTint="@color/colorAccent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:padding="10dp"
                 android:layout_weight="7"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
@@ -187,7 +188,7 @@
 
             <Button
                 android:id="@+id/test_call"
-                style="@style/Button"
+                android:backgroundTint="@color/colorAccent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Test call" />
