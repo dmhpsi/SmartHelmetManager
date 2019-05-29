@@ -78,9 +78,6 @@ public class PreAlarmActivity extends AppCompatActivity {
 
         findViewById(R.id.button_cancel).setOnClickListener(v -> {
             finish();
-            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, preVolume, 0);
-            audioManager.setMode(AudioManager.MODE_NORMAL);
-            audioManager.setStreamSolo(AudioManager.STREAM_MUSIC, false);
         });
     }
 
@@ -92,6 +89,9 @@ public class PreAlarmActivity extends AppCompatActivity {
             preAlarmPlayer.reset();
             preAlarmPlayer.release();
         }
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, preVolume, 0);
+        audioManager.setMode(AudioManager.MODE_NORMAL);
+        audioManager.setStreamSolo(AudioManager.STREAM_MUSIC, false);
         handler.removeCallbacks(runnable);
     }
 

@@ -179,7 +179,7 @@
             style="@style/Header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Test" />
+            android:text="Diagnostic" />
 
         <LinearLayout
             style="@style/Content"
@@ -191,7 +191,8 @@
                 android:backgroundTint="@color/colorAccent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Test call" />
+                android:text="Diagnose"
+                android:textColor="@color/colorWhite" />
         </LinearLayout>
 
         <TextView

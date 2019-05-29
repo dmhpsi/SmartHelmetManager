@@ -68,7 +68,8 @@ public class BluetoothHandler {
     private OnDiscoveryError onDiscoveryError;
     private OnDeviceConnected onDeviceConnected;
     private OnDeviceDisconnected onDeviceDisconnected;
-    private OnMessage onRawMessage, onMessage;
+    private OnMessage onRawMessage;
+    private List<OnMessage> onMessages = new ArrayList<>();
     private OnDeviceError onDeviceError;
     private OnConnectError onConnectError;
     private OnDeviceAuthenticated onDeviceAuthenticated;
@@ -300,8 +301,15 @@ public class BluetoothHandler {
         this.onRawMessage = onRawMessage;
     }
 
-    public void setOnMessage(OnMessage onMessage) {
-        this.onMessage = onMessage;
+    public void addOnMessages(OnMessage onMessage) {
+        if (!this.onMessages.contains(onMessage)) {
+            this.onMessages.add(onMessage);
+        }
+        Log.e("Add on message size ", "" + this.onMessages.size());
+    }
+
+    public void removeOnMessages(OnMessage onMessages) {
+        this.onMessages.remove(onMessages);
     }
 
     public void setOnDeviceError(OnDeviceError onDeviceError) {
@@ -568,7 +576,9 @@ public class BluetoothHandler {
                     });
                 }
             } else if (deviceState == DeviceState.AUTHENTICATED) {
-                onMessage.onEvent(message);
+                for (OnMessage onMessage : onMessages) {
+                    onMessage.onEvent(message);
+                }
             }
             Log.e(TAG, "message " + message);
         });

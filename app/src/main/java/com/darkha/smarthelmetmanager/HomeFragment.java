@@ -165,18 +165,16 @@ public class HomeFragment extends Fragment {
                 android.provider.Settings.System.CONTENT_URI, true,
                 audioContentObserver);
 
-//        view.findViewById(R.id.test_call).setOnClickListener(v -> {
-////            String phone = "+84386648412";
-////            SmsManager smsManager = SmsManager.getDefault();
-////            smsManager.sendTextMessage(phone, null, "đm tuấn", null, null);
-//            new Handler().postDelayed(() -> {
-//                Intent intent = new Intent(getContext(), PreAlarmActivity.class);
-//                startActivity(intent);
-//            }, 10);
-//
-//        });
+        view.findViewById(R.id.test_call).setOnClickListener(v -> {
+//            String phone = "+84386648412";
+//            SmsManager smsManager = SmsManager.getDefault();
+//            smsManager.sendTextMessage(phone, null, "đm tuấn", null, null);
+            DiagnosticFragment dialogFragment = new DiagnosticFragment();
+            dialogFragment.setService(bluetooth);
+            dialogFragment.show(getActivity().getSupportFragmentManager(), null);
+        });
 
-        bluetooth.setOnMessage(message -> {
+        bluetooth.addOnMessages(message -> {
             if (message.startsWith("warning")) {
                 Intent intent = new Intent(getContext(), PreAlarmActivity.class);
                 startActivity(intent);
