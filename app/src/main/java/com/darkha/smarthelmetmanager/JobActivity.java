@@ -11,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 
 enum DeviceState {
@@ -25,6 +26,7 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
 
     private static final int PERMISSIONS_REQUEST_COARSE_LOCATION = 99;
     private static final int PERMISSIONS_REQUEST_SEND_SMS = 98;
+    private static final String TAG = "BluetoothService";
     BottomNavigationView bottomNavigationView;
     ViewPager viewPager;
     DevicesFragment devicesFragment;
@@ -38,8 +40,12 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
     protected void onCreate(Bundle savedInstanceState) {
         permissionCheck();
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_job);
-        bluetooth = new BluetoothHandler(this);
+        if (bluetooth == null) {
+            bluetooth = new BluetoothHandler(this);
+        }
+        Log.e(TAG, "Connected: " + bluetooth.isConnected());
         tinyDB = new TinyDB(this);
 
         viewPager = findViewById(R.id.viewpager);
@@ -99,6 +105,13 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
     protected void onStop() {
         super.onStop();
         bluetooth.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        bluetooth.suppressDisconnectCallback();
+        bluetooth.disconnect();
     }
 
     @Override

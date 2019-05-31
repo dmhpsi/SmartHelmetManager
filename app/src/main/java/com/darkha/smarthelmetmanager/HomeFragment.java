@@ -78,24 +78,33 @@ public class HomeFragment extends Fragment {
             setStatus(view, "Disconnected");
         }
         bluetooth.setOnConnectError((device, message) -> {
-            getActivity().runOnUiThread(() -> {
-                button.setEnabled(true);
-                setStatus(view, "Disconnected");
-            });
+            try {
+                getActivity().runOnUiThread(() -> {
+                    button.setEnabled(true);
+                    setStatus(view, "Disconnected");
+                });
+            } catch (Exception ignored) {
+            }
         });
         bluetooth.setOnDeviceDisconnected((device, message) -> {
-            getActivity().runOnUiThread(() -> {
-                button.setImageResource(R.drawable.ic_bluetooth_connected);
-                button.setEnabled(true);
-                setStatus(view, "Disconnected");
-            });
+            try {
+                getActivity().runOnUiThread(() -> {
+                    button.setImageResource(R.drawable.ic_bluetooth_connected);
+                    button.setEnabled(true);
+                    setStatus(view, "Disconnected");
+                });
+            } catch (Exception ignored) {
+            }
         });
         bluetooth.setOnDeviceAuthenticated((device) -> {
-            getActivity().runOnUiThread(() -> {
-                button.setImageResource(R.drawable.ic_bluetooth_disabled);
-                button.setEnabled(true);
-                setStatus(view, "Connected");
-            });
+            try {
+                getActivity().runOnUiThread(() -> {
+                    button.setImageResource(R.drawable.ic_bluetooth_disabled);
+                    button.setEnabled(true);
+                    setStatus(view, "Connected");
+                });
+            } catch (Exception ignored) {
+            }
         });
         button.setOnClickListener(v -> {
             button.setEnabled(false);

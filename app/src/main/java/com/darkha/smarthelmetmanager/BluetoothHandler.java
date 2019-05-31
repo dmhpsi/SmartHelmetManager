@@ -408,7 +408,13 @@ public class BluetoothHandler {
                 }
             });
             if (onDeviceDisconnected != null) {
-                ThreadHelper.run(runOnUi, activity, () -> onDeviceDisconnected.onEvent(device, e.getMessage()));
+                ThreadHelper.run(runOnUi, activity, () -> {
+                    onDeviceDisconnected.onEvent(device, e.getMessage());
+
+                    Intent stopIntent = new Intent(context, BluetoothService.class);
+                    stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
+                    context.startService(stopIntent);
+                });
             }
         }
     }
@@ -633,7 +639,13 @@ public class BluetoothHandler {
                     }
                 });
                 if (onDeviceDisconnected != null) {
-                    ThreadHelper.run(runOnUi, activity, () -> onDeviceDisconnected.onEvent(device, e.getMessage()));
+                    ThreadHelper.run(runOnUi, activity, () -> {
+                        onDeviceDisconnected.onEvent(device, e.getMessage());
+
+                        Intent stopIntent = new Intent(context, BluetoothService.class);
+                        stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
+                        context.startService(stopIntent);
+                    });
                 }
             }
         }
@@ -693,6 +705,9 @@ public class BluetoothHandler {
                         onDeviceConnected.onEvent(device);
                     });
                 }
+                Intent startIntent = new Intent(context, BluetoothService.class);
+                startIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+                context.startService(startIntent);
             } catch (final IOException e) {
                 e.printStackTrace();
                 ThreadHelper.run(true, activity, () -> {

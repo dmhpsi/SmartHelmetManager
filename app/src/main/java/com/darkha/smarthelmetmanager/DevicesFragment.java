@@ -14,6 +14,9 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +30,7 @@ public class DevicesFragment extends Fragment {
     DevicesListAdapter adapter;
     private OnFragmentInteractionListener mListener;
     private TinyDB tinyDB;
+    private BarcodeDetector detector;
 
     public DevicesFragment() {
         // Required empty public constructor
@@ -58,6 +62,10 @@ public class DevicesFragment extends Fragment {
                     .create()
                     .show();
         });
+
+        detector = new BarcodeDetector.Builder(getContext())
+                .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
+                .build();
 
         knownAdapter.setOnDeleteClickListener(device -> {
             new AlertDialog.Builder(getContext())

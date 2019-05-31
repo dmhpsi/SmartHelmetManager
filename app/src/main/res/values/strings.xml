@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Smart Helmet Manager</string>
+    <string name="app_name">Go Sunday</string>
     <string name="btn_scan_label">Scan!</string>
     <string name="nav_home">Home</string>
     <string name="nav_devices">Devices</string>
