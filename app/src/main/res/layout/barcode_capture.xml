@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/topLayout"
+    style="@style/Layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/Header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Scan" />
+
+    <FrameLayout
+        style="@style/Content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp">
+
+        <com.darkha.smarthelmetmanager.CameraSourcePreview
+            android:id="@+id/preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <LinearLayout
+        style="@style/Content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="10dp">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:columnCount="2"
+            android:rowCount="3">
+
+            <TextView
+                style="@style/TextStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="0"
+                android:text="Name:"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/text_info_name"
+                style="@style/TextStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="1"
+                android:textSize="18sp" />
+
+            <TextView
+                style="@style/TextStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="1"
+                android:layout_column="0"
+                android:text="Address: "
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/text_info_address"
+                style="@style/TextStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="1"
+                android:layout_column="1"
+                android:textSize="18sp" />
+        </GridLayout>
+
+        <ImageButton
+            android:id="@+id/button_toggle_connection"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="7"
+            android:adjustViewBounds="true"
+            android:backgroundTint="@color/colorAccent"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_bluetooth_connected"
+            android:tint="@color/colorWhite"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <TextView
+        style="@style/Footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -24,9 +23,12 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
         HomeFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener {
 
-    private static final int PERMISSIONS_REQUEST_COARSE_LOCATION = 99;
-    private static final int PERMISSIONS_REQUEST_SEND_SMS = 98;
+    private static final int PERMISSIONS_ALL = 1;
     private static final String TAG = "BluetoothService";
+    String[] PERMISSIONS = {
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
     BottomNavigationView bottomNavigationView;
     ViewPager viewPager;
     DevicesFragment devicesFragment;
@@ -38,10 +40,12 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        permissionCheck();
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_job);
+
+        permissionCheck();
+
         if (bluetooth == null) {
             bluetooth = new BluetoothHandler(this);
         }
@@ -111,7 +115,11 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
     protected void onDestroy() {
         super.onDestroy();
         bluetooth.suppressDisconnectCallback();
-        bluetooth.disconnect();
+        try {
+            bluetooth.disconnect();
+        } catch (Exception ignored) {
+
+        }
     }
 
     @Override
@@ -120,53 +128,32 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
         bluetooth.onActivityResult(requestCode, resultCode);
     }
 
-    void permissionCheck() {
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(JobActivity.this,
-                Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(JobActivity.this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                new AlertDialog.Builder(JobActivity.this)
-                        .setMessage("This app need to access location service in order to work. Please grant the permission.")
-                        .setPositiveButton(R.string.ok, (dialog, which) -> {
-                            dialog.dismiss();
-                            ActivityCompat.requestPermissions(JobActivity.this,
-                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                    PERMISSIONS_REQUEST_COARSE_LOCATION);
-                        })
-                        .create()
-                        .show();
-            } else {
-                ActivityCompat.requestPermissions(JobActivity.this,
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                        PERMISSIONS_REQUEST_COARSE_LOCATION);
-
+    public boolean hasPermissions(String... permissions) {
+        if (permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
             }
         }
+        return true;
+    }
 
-        if (ContextCompat.checkSelfPermission(JobActivity.this,
-                Manifest.permission.SEND_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(JobActivity.this,
-                    Manifest.permission.SEND_SMS)) {
-                new AlertDialog.Builder(JobActivity.this)
-                        .setMessage("This app need to send SMS in order to work. Please grant the permission.")
-                        .setPositiveButton(R.string.ok, (dialog, which) -> {
-                            dialog.dismiss();
-                            ActivityCompat.requestPermissions(JobActivity.this,
-                                    new String[]{Manifest.permission.SEND_SMS},
-                                    PERMISSIONS_REQUEST_SEND_SMS);
-                        })
-                        .create()
-                        .show();
-            } else {
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(JobActivity.this,
-                        new String[]{Manifest.permission.SEND_SMS},
-                        PERMISSIONS_REQUEST_SEND_SMS);
-            }
+    void permissionCheck() {
+        // Here, thisActivity is the current activity
+        if (!hasPermissions(PERMISSIONS)) {
+            new AlertDialog.Builder(JobActivity.this)
+                    .setMessage("This app need to access location service and send SMS in emergency situation. Please grant these permissions.")
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.ok, (dialog, which) -> {
+                        dialog.dismiss();
+                        ActivityCompat.requestPermissions(JobActivity.this,
+                                PERMISSIONS,
+                                PERMISSIONS_ALL);
+                    })
+                    .create()
+                    .show();
         }
 
     }
@@ -174,19 +161,10 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_COARSE_LOCATION: {
-                if (!(grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    permissionCheck();
-                }
-                return;
-            }
-            case PERMISSIONS_REQUEST_SEND_SMS: {
-                if (!(grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    permissionCheck();
-                }
+        if (requestCode == PERMISSIONS_ALL) {
+            if (!(grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                permissionCheck();
             }
         }
     }
@@ -203,6 +181,20 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
         adapter.addFragment(homeFragment);
         adapter.addFragment(settingsFragment);
         viewPager.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (viewPager.getCurrentItem() != 1) {
+            viewPager.setCurrentItem(1);
+        } else {
+            JobActivity.this.moveTaskToBack(true);
+        }
     }
 
     @Override

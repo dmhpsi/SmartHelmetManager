@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
@@ -503,45 +502,6 @@ public class BluetoothHandler {
                 .setView(R.layout.progressbar_layout)
                 .setCancelable(false)
                 .create();
-//
-//        setOnDeviceConnected(device -> {
-//            send("AUT\n");
-//            ThreadHelper.run(true, activity, () -> {
-//                loadingDialog.dismiss();
-//                authDialog.show();
-//                new Handler().postDelayed(() -> {
-//                    if (deviceState != DeviceState.AUTHENTICATED) {
-//                        ThreadHelper.run(true, activity, () -> {
-//                            Toast.makeText(context, "Authentication failed", Toast.LENGTH_LONG).show();
-//                            disconnect();
-//                            authDialog.dismiss();
-//                            deviceState = DeviceState.UNAUTHENTICATED;
-//                        });
-//                    }
-//                }, 5000);
-//                Toast.makeText(context, context.getString(R.string.connection_sucess), Toast.LENGTH_LONG).show();
-//            });
-//        });
-
-//        setOnDeviceDisconnected((device, message) -> {
-//            ThreadHelper.run(true, activity, () -> {
-//                if (!isSuppressDisconnectCallback) {
-//                    new AlertDialog.Builder(context)
-//                            .setMessage(R.string.lost_connection_prompt)
-//                            .setPositiveButton(R.string.yes, (dialog, which) -> {
-//                                dialog.dismiss();
-//                                connectToDevice(device);
-//                                loadingDialog.show();
-//                            })
-//                            .setNegativeButton(R.string.no, (dialog, which) -> {
-//                                dialog.dismiss();
-//                            })
-//                            .create()
-//                            .show();
-//                    isSuppressDisconnectCallback = false;
-//                }
-//            });
-//        });
 
         setOnRawMessage(message -> {
             if (deviceState == DeviceState.UNAUTHENTICATED) {
@@ -566,7 +526,7 @@ public class BluetoothHandler {
                         }
                     }
 
-                    String deviceAlias = new ListDataWrapper(deviceName, deviceAddress, true, System.currentTimeMillis()).toString();
+                    String deviceAlias = new ListDataWrapper(device.getName(), deviceAddress, true, System.currentTimeMillis()).toString();
                     listUnique.add(deviceAlias);
                     tinyDB.putListString(context.getString(R.string.key_authenticated_devices), listUnique);
                     Log.e(TAG, "Pref: " + authenticatedDevices.toString());
@@ -576,8 +536,9 @@ public class BluetoothHandler {
                     }
                     ThreadHelper.run(true, activity, () -> {
                         authDialog.dismiss();
-                        ViewPager viewPager = activity.findViewById(R.id.viewpager);
-                        viewPager.setCurrentItem(1);
+                        if (onDeviceConnected != null) {
+                            onDeviceConnected.onEvent(device);
+                        }
                         Toast.makeText(activity, "Authenticated", Toast.LENGTH_LONG).show();
                     });
                 }
@@ -588,18 +549,6 @@ public class BluetoothHandler {
             }
             Log.e(TAG, "message " + message);
         });
-
-//        setOnConnectError((device, message) -> {
-//            ThreadHelper.run(true, activity, () -> {
-//                loadingDialog.dismiss();
-//                new AlertDialog.Builder(context)
-//                        .setMessage(R.string.connection_failed_try_again)
-//                        .setCancelable(false)
-//                        .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
-//                        .create()
-//                        .show();
-//            });
-//        });
 
         connectToAddress(deviceAddress);
         loadingDialog.show();

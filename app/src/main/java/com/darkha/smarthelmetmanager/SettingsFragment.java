@@ -88,7 +88,7 @@ public class SettingsFragment extends Fragment {
         EditText editBloodType = view.findViewById(R.id.edit_blood_type);
 
         String[] bloodTypes = new String[]{
-                "Unknown",
+                "--",
                 "A Rh+",
                 "A Rh-",
                 "B Rh+",
@@ -136,7 +136,13 @@ public class SettingsFragment extends Fragment {
                         view.findViewById(R.id.button_save_user_info).setVisibility(View.VISIBLE);
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    try {
+                        JSONObject info;
+                        info = new JSONObject("{\"name\":\"\",\"address\":\"\",\"allergy\":\"\",\"blood-type\":\"--\"}");
+                        tinyDB.putString(getContext().getString(R.string.key_user_info), info.toString());
+                    } catch (JSONException ignored) {
+                    }
+
                 }
             }
 
@@ -153,20 +159,15 @@ public class SettingsFragment extends Fragment {
 
         try {
             JSONObject info = new JSONObject(tinyDB.getString(getContext().getString(R.string.key_user_info)));
-            try {
-                editName.setText(info.getString("name"));
-                editAddress.setText(info.getString("address"));
-                editAllergy.setText(info.getString("allergy"));
-                editBloodType.setText(info.getString("blood-type"));
-                int bloodIndex = bloodList.indexOf(info.getString("blood-type"));
-                if (bloodIndex > -1) {
-                    spinnerBloodType.setSelection(bloodIndex);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            editName.setText(info.getString("name"));
+            editAddress.setText(info.getString("address"));
+            editAllergy.setText(info.getString("allergy"));
+            editBloodType.setText(info.getString("blood-type"));
+            int bloodIndex = bloodList.indexOf(info.getString("blood-type"));
+            if (bloodIndex > -1) {
+                spinnerBloodType.setSelection(bloodIndex);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
 
         editName.addTextChangedListener(userInfoTextWatcher);
@@ -212,7 +213,13 @@ public class SettingsFragment extends Fragment {
                         view.findViewById(R.id.button_save_phone).setVisibility(View.VISIBLE);
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    try {
+                        JSONObject info;
+                        info = new JSONObject("{\"number1\":\"\",\"number2\":\"\",\"number3\":\"\"}");
+                        tinyDB.putString(getContext().getString(R.string.key_phone_numbers), info.toString());
+                    } catch (JSONException ignored) {
+                    }
+
                 }
             }
 
@@ -235,8 +242,7 @@ public class SettingsFragment extends Fragment {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
 
         editNumber1.addTextChangedListener(phoneTextWatcher);

@@ -10,4 +10,9 @@ public class Constants {
     public interface NOTIFICATION_ID {
         int FOREGROUND_SERVICE = 111;
     }
+
+    public interface BARCODE {
+        String NAME = "BAR_NAME";
+        String ADDRESS = "BAR_ADDRESS";
+    }
 }

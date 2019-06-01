@@ -24,7 +24,7 @@
 
 
         <ImageButton
-            android:id="@+id/button_save_user_info"
+            android:id="@+id/button_start_qr_scan"
             style="@style/TransparentButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

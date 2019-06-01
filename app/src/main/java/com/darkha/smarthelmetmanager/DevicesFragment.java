@@ -2,11 +2,14 @@ package com.darkha.smarthelmetmanager;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +17,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.google.android.gms.common.api.CommonStatusCodes;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,13 +26,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class DevicesFragment extends Fragment {
 
+    private static final int RC_BARCODE_CAPTURE = 9001;
     BluetoothHandler bluetooth;
     DevicesListAdapter adapter;
     private OnFragmentInteractionListener mListener;
     private TinyDB tinyDB;
-    private BarcodeDetector detector;
 
     public DevicesFragment() {
         // Required empty public constructor
@@ -62,10 +65,6 @@ public class DevicesFragment extends Fragment {
                     .create()
                     .show();
         });
-
-        detector = new BarcodeDetector.Builder(getContext())
-                .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
-                .build();
 
         knownAdapter.setOnDeleteClickListener(device -> {
             new AlertDialog.Builder(getContext())
@@ -125,6 +124,25 @@ public class DevicesFragment extends Fragment {
         knownAdapter.notifyDataSetChanged();
         knownDevicesList.setOnItemClickListener((parent, _view, position, id) -> {
             bluetooth.connectToDevice(knownAdapter.getItem(position).getName(), knownAdapter.getItem(position).getAddress());
+        });
+
+        bluetooth.setOnDeviceConnected(device -> {
+            knownAdapter.clear();
+            List<String> knownDevices = tinyDB.getListString(getString(R.string.key_authenticated_devices));
+            try {
+                JSONArray jsonObjects = new JSONArray(knownDevices.toString());
+                for (int i = 0; i < jsonObjects.length(); i++) {
+                    JSONObject object = jsonObjects.getJSONObject(i);
+                    knownAdapter.addDevice(new ListDataWrapper(object.getString("name"), object.getString("address"), true, object.getLong("last_time")));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            getActivity().runOnUiThread(() -> {
+                ViewPager viewPager = getActivity().findViewById(R.id.viewpager);
+                viewPager.setCurrentItem(1);
+                knownAdapter.notifyDataSetChanged();
+            });
         });
 
         ListView scanDevicesList = view.findViewById(R.id.list_found_devices);
@@ -197,6 +215,14 @@ public class DevicesFragment extends Fragment {
                 }
             }
         });
+
+        view.findViewById(R.id.button_start_qr_scan).setOnClickListener(v -> {
+
+            Intent intent = new Intent(getContext(), BarcodeCaptureActivity.class);
+            startActivityForResult(intent, RC_BARCODE_CAPTURE);
+
+        });
+
         // Inflate the layout for this fragment
         return view;
     }
@@ -211,6 +237,26 @@ public class DevicesFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == CommonStatusCodes.SUCCESS && requestCode == RC_BARCODE_CAPTURE) {
+            if (data == null) return;
+            String name = data.getStringExtra(Constants.BARCODE.NAME);
+            String address = data.getStringExtra(Constants.BARCODE.ADDRESS);
+
+            Log.e("res", name);
+            Log.e("res", address);
+
+            if (bluetooth.isConnected()) {
+                bluetooth.suppressDisconnectCallback();
+                bluetooth.disconnect();
+            }
+            bluetooth.connectToDevice(name, address.toUpperCase());
+
+        }
+    }
 
     @Override
     public void onAttach(Context context) {
