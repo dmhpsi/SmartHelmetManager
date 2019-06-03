@@ -47,6 +47,12 @@
         <item name="android:textColor">@color/colorBlack</item>
     </style>
 
+    <style name="TextStatusLabel">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:layout_marginEnd">10dp</item>
+    </style>
+
     <style name="Header">
         <item name="android:background">@drawable/segment_bg_top_half</item>
         <item name="android:textColor">@color/colorBlack</item>

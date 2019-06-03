@@ -12,12 +12,13 @@
         android:layout_height="100dp"
         android:layout_marginTop="50dp"
         android:src="@drawable/ic_warning"
+        android:contentDescription="@string/image"
         android:tint="@color/colorWhite" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Emergency"
+        android:text="@string/emergency"
         android:textAlignment="center"
         android:textColor="@color/colorWhite"
         android:textSize="30sp" />
@@ -29,7 +30,6 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="Contacted"
         android:textColor="@color/colorWhite"
         android:textSize="20sp" />
 
@@ -38,14 +38,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="Info"
         android:textColor="@color/colorWhite"
         android:textSize="20sp" />
 
     <FrameLayout
         android:id="@+id/frame_timeout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingStart="150dp"
         android:paddingTop="30dp"
@@ -61,7 +60,7 @@
         android:backgroundTint="@color/colorWhite"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
-        android:text="Rescue"
+        android:text="@string/rescue"
         android:textColor="@color/colorRed"
         android:textSize="20sp" />
 
@@ -69,7 +68,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="40dp"
-        android:text="Tap and hold to confirm"
+        android:text="@string/tap_and_hold_to_confirm"
         android:textAlignment="center"
         android:textColor="@color/colorWhite" />
 

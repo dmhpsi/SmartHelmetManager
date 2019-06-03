@@ -53,7 +53,7 @@ public class ListDataWrapper {
     }
 
     String getLastConnectedTime() {
-        return DateFormat.format("hh:mm dd/MM/yyyy", new Date(lastConnectedTime)).toString();
+        return DateFormat.format("HH:mm dd/MM/yyyy", new Date(lastConnectedTime)).toString();
     }
 
     public boolean isRecognized() {

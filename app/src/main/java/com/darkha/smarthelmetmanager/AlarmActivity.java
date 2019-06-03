@@ -1,8 +1,6 @@
 package com.darkha.smarthelmetmanager;
 
 import android.content.Context;
-import android.location.Location;
-import android.location.LocationListener;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -23,36 +21,9 @@ import java.util.ArrayList;
 import io.nlopez.smartlocation.SmartLocation;
 
 public class AlarmActivity extends AppCompatActivity {
-    private static final long LOCATION_REFRESH_TIME = 100;
-    private static final float LOCATION_REFRESH_DISTANCE = 1f;
     MediaPlayer alarmPlayer;
     AudioManager audioManager;
     Double longitude, latitude;
-    private final LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(final Location location) {
-            //your code here
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
-            Log.e("LONGLAT", " " + longitude + " " + latitude);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-    };
-
 
     int preVolume;
 
@@ -75,7 +46,7 @@ public class AlarmActivity extends AppCompatActivity {
             return false;
         });
         TextView textContact = findViewById(R.id.text_numbers);
-        String message = "Contacted to:\n";
+        String message = getString(R.string.contacted_to) + ":\n";
 
         ArrayList<String> savedContacts = tinyDB.getListString(getString(R.string.KEY_EMERGENCY_NUMBERS));
         ArrayList<String> infoList = new ArrayList<>();
@@ -98,7 +69,7 @@ public class AlarmActivity extends AppCompatActivity {
 
         textContact.setText(message);
 
-        message = "User Info:";
+        message = getString(R.string.user_info);
 
         String name = "user", address, allergy, blood;
         try {

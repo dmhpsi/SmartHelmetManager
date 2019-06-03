@@ -24,6 +24,6 @@ public class QrParser {
     }
 
     public String getAddress() {
-        return address;
+        return address.toUpperCase();
     }
 }

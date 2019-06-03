@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="Contact info"
+        android:text="@string/contact_info"
         android:textAlignment="center"
         android:textColor="@color/colorBlack"
         android:textSize="20sp" />
@@ -17,7 +17,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Contact Name" />
+        android:text="@string/contact_name" />
 
     <EditText
         android:id="@+id/edit_contact_name"
@@ -27,7 +27,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Contact Number" />
+        android:text="@string/contact_number" />
 
     <EditText
         android:id="@+id/edit_contact_number"

@@ -123,6 +123,25 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
     }
 
     @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        Uri data = getIntent().getData();
+        QrParser parser = null;
+        if (data != null) {
+            parser = new QrParser(data.toString());
+            if (bluetooth == null) {
+                bluetooth = new BluetoothHandler(this);
+            }
+            if (bluetooth.isConnected()) {
+                bluetooth.suppressDisconnectCallback();
+                bluetooth.disconnect();
+            }
+            bluetooth.connectToDevice(parser.getName(), parser.getAddress());
+            Log.e("INTENT", parser.getName() + parser.getAddress());
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         bluetooth.onActivityResult(requestCode, resultCode);
@@ -185,6 +204,20 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        Uri data = intent.getData();
+        QrParser parser = null;
+        if (data != null) {
+            parser = new QrParser(data.toString());
+            if (bluetooth == null) {
+                bluetooth = new BluetoothHandler(this);
+            }
+            if (bluetooth.isConnected()) {
+                bluetooth.suppressDisconnectCallback();
+                bluetooth.disconnect();
+            }
+            bluetooth.connectToDevice(parser.getName(), parser.getAddress());
+            Log.e("INTENT", parser.getName() + parser.getAddress());
+        }
     }
 
     @Override

@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="Scan for devices"
+            android:text="@string/scan_for_devices"
             android:textColor="@color/colorBlack"
             android:textSize="20sp" />
 
@@ -38,6 +38,7 @@
             android:paddingBottom="0dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_qr_code"
+            android:contentDescription="@string/image"
             android:tint="@color/colorBlack" />
 
         <Switch
@@ -87,7 +88,7 @@
         style="@style/Header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Previously Connected Devices" />
+        android:text="@string/previously_connected_devices" />
 
     <FrameLayout
         android:id="@+id/expand_known"

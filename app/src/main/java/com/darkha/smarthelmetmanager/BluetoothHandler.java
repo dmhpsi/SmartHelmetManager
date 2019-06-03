@@ -41,19 +41,17 @@ class ThreadHelper {
 
 public class BluetoothHandler {
     private static final int REQUEST_ENABLE_BT = 1111;
-
+    Handler tempHumidHandler;
+    Runnable tempHumidRunnable;
     private Activity activity;
     private Context context;
     private UUID uuid;
-
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothSocket socket;
     private BluetoothDevice device, devicePair;
     private BufferedReader input;
     private OutputStream out;
-
-
     private OnBluetoothTurningOn onBluetoothTurningOn;
     private OnBluetoothOn onBluetoothOn;
     private OnBluetoothTurningOff onBluetoothTurningOff;
@@ -72,10 +70,8 @@ public class BluetoothHandler {
     private OnDeviceError onDeviceError;
     private OnConnectError onConnectError;
     private OnDeviceAuthenticated onDeviceAuthenticated;
-
     private AlertDialog loadingDialog;
     private AlertDialog authDialog;
-
     private boolean isSuppressDisconnectCallback;
 
     private boolean connected;
@@ -410,6 +406,12 @@ public class BluetoothHandler {
                 ThreadHelper.run(runOnUi, activity, () -> {
                     onDeviceDisconnected.onEvent(device, e.getMessage());
 
+                    try {
+                        tempHumidHandler.removeCallbacks(tempHumidRunnable);
+                    } catch (Exception ignored) {
+
+                    }
+
                     Intent stopIntent = new Intent(context, BluetoothService.class);
                     stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
                     context.startService(stopIntent);
@@ -539,10 +541,20 @@ public class BluetoothHandler {
                         if (onDeviceConnected != null) {
                             onDeviceConnected.onEvent(device);
                         }
+
                         Toast.makeText(activity, "Authenticated", Toast.LENGTH_LONG).show();
                     });
                 }
             } else if (deviceState == DeviceState.AUTHENTICATED) {
+                if (message.startsWith("dht")) {
+                    String[] parts = message.split(",");
+
+                    Intent startIntent = new Intent(context, BluetoothService.class);
+                    startIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+                    startIntent.putExtra("temperature", Float.valueOf(parts[2]));
+                    startIntent.putExtra("humidity", Float.valueOf(parts[1]));
+                    context.startService(startIntent);
+                }
                 for (OnMessage onMessage : onMessages) {
                     onMessage.onEvent(message);
                 }
@@ -550,8 +562,12 @@ public class BluetoothHandler {
             Log.e(TAG, "message " + message);
         });
 
-        connectToAddress(deviceAddress);
-        loadingDialog.show();
+        try {
+            connectToAddress(deviceAddress);
+            loadingDialog.show();
+        } catch (Exception ignored) {
+            loadingDialog.dismiss();
+        }
     }
 
     public void setOnDeviceAuthenticated(OnDeviceAuthenticated onDeviceAuthenticated) {
@@ -590,6 +606,12 @@ public class BluetoothHandler {
                 if (onDeviceDisconnected != null) {
                     ThreadHelper.run(runOnUi, activity, () -> {
                         onDeviceDisconnected.onEvent(device, e.getMessage());
+
+                        try {
+                            tempHumidHandler.removeCallbacks(tempHumidRunnable);
+                        } catch (Exception ignored) {
+
+                        }
 
                         Intent stopIntent = new Intent(context, BluetoothService.class);
                         stopIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
@@ -647,13 +669,33 @@ public class BluetoothHandler {
                             });
                         }
                     }, 5000);
-                    Toast.makeText(context, context.getString(R.string.connection_sucess), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, context.getString(R.string.connection_success), Toast.LENGTH_LONG).show();
                 });
-                if (onDeviceConnected != null) {
-                    ThreadHelper.run(runOnUi, activity, () -> {
-                        onDeviceConnected.onEvent(device);
-                    });
-                }
+//                if (onDeviceConnected != null) {
+//                    ThreadHelper.run(runOnUi, activity, () -> {
+//                        onDeviceConnected.onEvent(device);
+//                    });
+//                }
+                ThreadHelper.run(true, activity, () -> {
+                    tempHumidHandler = new Handler();
+                    tempHumidRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.e("handler", "run");
+                            try {
+                                if (isConnected()) {
+                                    send("get dht\n");
+                                }
+                            } catch (Exception e) {
+                                // TODO: handle exception
+                            } finally {
+                                //also call the same runnable to call it at regular interval
+                                tempHumidHandler.postDelayed(this, 60000);
+                            }
+                        }
+                    };
+                    tempHumidHandler.postDelayed(tempHumidRunnable, 10000);
+                });
                 Intent startIntent = new Intent(context, BluetoothService.class);
                 startIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
                 context.startService(startIntent);

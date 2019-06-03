@@ -14,12 +14,12 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_main">Home</string>
     <string name="label_command">Input Command</string>
-    <string name="bluetooth_unavailable">Bluetooth unavailable!</string>
+    <string name="bluetooth_unavailable">Bluetooth Unavailable!</string>
     <string name="connection_failed">Connection failed!</string>
     <string name="connected">Connected!</string>
     <string name="message_send_error">Send error!</string>
     <string name="you_sent">You sent</string>
-    <string name="connection_sucess">Connection success</string>
+    <string name="connection_success">Connection success</string>
     <string name="connection_failed_try_again">Connection failed, please check the device and try again</string>
     <string name="connection_canceled">Connection canceled</string>
     <string name="connecting_to">Connecting to</string>
@@ -46,11 +46,40 @@
     <string name="permission_camera_rationale">Access to the camera is needed for detection</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="KEY_USER_INFO">KEY_USER_INFO</string>
     <string name="title_activity_alert">AlertActivity</string>
     <string name="ok">OK</string>
     <string name="KEY_EMERGENCY_NUMBERS">KEY_EMERGENCY_NUMBERS</string>
+    <string name="balance">Balance</string>
+    <string name="compass">Compass</string>
+    <string name="image">image</string>
+    <string name="emergency">Emergency</string>
+    <string name="rescue">Rescue</string>
+    <string name="tap_and_hold_to_confirm">Tap and hold to confirm</string>
+    <string name="emergency_detected">Emergency detected!</string>
+    <string name="contacting_to_emergency_numbers_in">Contacting to emergency numbers in</string>
+    <string name="countdown_value">10</string>
+    <string name="scan_from_qr">Scan from QR</string>
+    <string name="name">Name</string>
+    <string name="address">Address</string>
+    <string name="scan_for_devices">Scan for devices</string>
+    <string name="previously_connected_devices">Previously connected devices</string>
+    <string name="user_information">User information</string>
+    <string name="volume_control">Volume control</string>
+    <string name="status">Status</string>
+    <string name="blood_type">Blood type</string>
+    <string name="allergy">Allergy</string>
+    <string name="emergency_contacts">Emergency contacts</string>
+    <string name="manual">Manual</string>
+    <string name="from_contacts">From contacts</string>
+    <string name="last_connected_device">Last connected device</string>
+    <string name="diagnostic">Diagnostic</string>
+    <string name="diagnose">Diagnose</string>
+    <string name="about">About</string>
+    <string name="contact_info">Contact info</string>
+    <string name="contact_name">Contact name</string>
+    <string name="contact_number">Contact number</string>
+    <string name="contacted_to">Contacted to</string>
+    <string name="user_info">User info</string>
 </resources>

@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/add_manual"
-        android:title="Manual" />
+        android:title="@string/manual" />
     <item
         android:id="@+id/add_from_contacts"
-        android:title="From contacts" />
+        android:title="@string/from_contacts" />
 </menu>

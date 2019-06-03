@@ -29,6 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_toStartOf="@+id/button_delete"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/image"
         android:src="@drawable/ic_edit" />
 
     <ImageButton
@@ -38,5 +39,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/image"
         android:src="@drawable/ic_delete" />
 </RelativeLayout>

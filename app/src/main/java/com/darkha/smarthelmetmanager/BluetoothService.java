@@ -43,21 +43,36 @@ public class BluetoothService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 CharSequence name = "name";
                 String description = "des";
-                int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                int importance = NotificationManager.IMPORTANCE_LOW;
                 NotificationChannel channel = new NotificationChannel(channelId, name, importance);
                 channel.setDescription(description);
                 NotificationManager notificationManager = getSystemService(NotificationManager.class);
                 notificationManager.createNotificationChannel(channel);
             }
 
-            Notification notification = new NotificationCompat.Builder(this, channelId)
-                    .setContentTitle(getString(R.string.app_name))
+            String message = "";
+            int temperature, humidity;
+            temperature = (int) intent.getFloatExtra("temperature", -1000f);
+            humidity = (int) intent.getFloatExtra("humidity", -1000f);
+
+            if (temperature > -999f) {
+                message += String.format("Temperature: %d℃", temperature);
+            }
+            if (humidity > -999f) {
+                message += String.format("\nHumidity: %d%%", humidity);
+            }
+
+            Notification notification;
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId)
+//                    .setContentTitle(getString(R.string.app_name))
                     .setTicker(getString(R.string.app_name))
-                    .setContentText("Enjoy the trip!")
+                    .setContentTitle("Enjoy the trip!")
+                    .setContentText(message)
                     .setSmallIcon(R.drawable.ic_smart_helmet)
                     .setContentIntent(pendingIntent)
-                    .setOngoing(true)
-                    .build();
+                    .setOngoing(true);
+            notification = notificationBuilder.build();
+            notification.defaults = 0;
             startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE,
                     notification);
         } else if (intent.getAction().equals(

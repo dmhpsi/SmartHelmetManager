@@ -1,52 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        style="@style/Header"
+    <LinearLayout
+        style="@style/Layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Compass" />
+        android:orientation="vertical">
 
-    <FrameLayout
-        style="@style/Content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/image_compass"
+        <TextView
+            style="@style/Header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:src="@mipmap/compass"
-            android:tint="@color/colorPrimary" />
-    </FrameLayout>
+            android:text="@string/compass" />
 
-    <TextView
-        android:id="@+id/text_angle"
-        style="@style/Content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <FrameLayout
+            style="@style/Content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="80dp"
+            android:paddingEnd="80dp">
 
-    <TextView
-        style="@style/Footer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+            <ImageView
+                android:id="@+id/image_compass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/compass"
+                android:src="@mipmap/compass"
+                android:tint="@color/colorAccent" />
+        </FrameLayout>
 
-    <Button
-        android:id="@+id/button_dismiss"
-        style="Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:padding="20dp"
-        android:text="close"
-        android:textColor="@color/colorWhite" />
+        <TextView
+            android:id="@+id/text_angle"
+            style="@style/Content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textAlignment="center"
+            android:textColor="@color/colorBlack" />
+
+        <TextView
+            style="@style/Content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text=""
+            android:textColor="@color/colorBlack" />
+
+        <TextView
+            style="@style/Footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            style="@style/Header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/balance" />
+
+        <RelativeLayout
+            android:id="@+id/frame_drop_container"
+            style="@style/Content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="100dp"
+            android:paddingEnd="100dp">
+
+            <ImageView
+                android:id="@+id/image_drop"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/image"
+                android:rotation="45"
+                android:src="@drawable/ic_cross" />
+
+            <ImageView
+                style="@style/TransparentButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/image"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_cross"
+                android:tint="@color/colorAccent" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/text_balance"
+            style="@style/Content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textAlignment="center"
+            android:textColor="@color/colorBlack" />
+
+        <TextView
+            style="@style/Content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textAlignment="center"
+            android:textColor="@color/colorBlack" />
+
+        <TextView
+            style="@style/Footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
 
-</LinearLayout>
+        <Button
+            android:id="@+id/button_dismiss"
+            style="Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:backgroundTint="@color/colorAccent"
+            android:padding="20dp"
+            android:text="@string/close"
+            android:textColor="@color/colorWhite" />
+
+
+    </LinearLayout>
+
+</ScrollView>
