@@ -1,9 +1,18 @@
 package com.darkha.smarthelmetmanager;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -12,6 +21,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -21,6 +32,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -36,11 +49,15 @@ public class SettingsFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private static final int SELECT_PHONE_NUMBER = 12;
+    private static final int PERMISSIONS_READ_CONTACTS = 112;
+    String[] READ_CONTACTS_PERMISSIONS = {
+            Manifest.permission.READ_CONTACTS
+    };
+    LinearLayout contactContainer;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
     private OnFragmentInteractionListener mListener;
     private BluetoothHandler bluetooth;
     private TinyDB tinyDB;
@@ -86,6 +103,7 @@ public class SettingsFragment extends Fragment {
         EditText editAddress = view.findViewById(R.id.edit_address);
         EditText editAllergy = view.findViewById(R.id.edit_allergy);
         EditText editBloodType = view.findViewById(R.id.edit_blood_type);
+        contactContainer = view.findViewById(R.id.layout_contacts_container);
 
         String[] bloodTypes = new String[]{
                 "--",
@@ -126,7 +144,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 try {
-                    JSONObject info = new JSONObject(tinyDB.getString(getContext().getString(R.string.key_user_info)));
+                    JSONObject info = new JSONObject(tinyDB.getString(getContext().getString(R.string.KEY_USER_INFO)));
                     if (info.getString("name").equals(editName.getText().toString())
                             && info.getString("address").equals(editAddress.getText().toString())
                             && info.getString("allergy").equals(editAllergy.getText().toString())
@@ -139,7 +157,7 @@ public class SettingsFragment extends Fragment {
                     try {
                         JSONObject info;
                         info = new JSONObject("{\"name\":\"\",\"address\":\"\",\"allergy\":\"\",\"blood-type\":\"--\"}");
-                        tinyDB.putString(getContext().getString(R.string.key_user_info), info.toString());
+                        tinyDB.putString(getContext().getString(R.string.KEY_USER_INFO), info.toString());
                     } catch (JSONException ignored) {
                     }
 
@@ -158,7 +176,7 @@ public class SettingsFragment extends Fragment {
         editBloodType.removeTextChangedListener(userInfoTextWatcher);
 
         try {
-            JSONObject info = new JSONObject(tinyDB.getString(getContext().getString(R.string.key_user_info)));
+            JSONObject info = new JSONObject(tinyDB.getString(getContext().getString(R.string.KEY_USER_INFO)));
             editName.setText(info.getString("name"));
             editAddress.setText(info.getString("address"));
             editAllergy.setText(info.getString("allergy"));
@@ -186,86 +204,82 @@ public class SettingsFragment extends Fragment {
                 e.printStackTrace();
             }
 
-            tinyDB.putString(getContext().getString(R.string.key_user_info), info.toString());
+            tinyDB.putString(getContext().getString(R.string.KEY_USER_INFO), info.toString());
             v.setVisibility(View.GONE);
             Toast.makeText(getContext(), "Saved", Toast.LENGTH_LONG).show();
             Functions.getInstance().hideKeyboard(getActivity());
         });
 
-        EditText editNumber1 = view.findViewById(R.id.edit_number_1);
-        EditText editNumber2 = view.findViewById(R.id.edit_number_2);
-        EditText editNumber3 = view.findViewById(R.id.edit_number_3);
+        view.findViewById(R.id.button_add_contacts).setOnClickListener(v -> {//Creating the instance of PopupMenu
+            PopupMenu popup = new PopupMenu(getContext(), v);
+            popup.getMenuInflater().inflate(R.menu.add_options, popup.getMenu());
 
-        TextWatcher phoneTextWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                try {
-                    JSONObject info = new JSONObject(tinyDB.getString(getContext().getString(R.string.key_phone_numbers)));
-                    if (info.getString("number1").equals(editNumber1.getText().toString())
-                            && info.getString("number2").equals(editNumber2.getText().toString())
-                            && info.getString("number3").equals(editNumber3.getText().toString())) {
-                        view.findViewById(R.id.button_save_phone).setVisibility(View.GONE);
+            popup.setOnMenuItemClickListener(item -> {
+                if (item.getTitle().equals("From contacts")) {
+                    if (hasPermissions()) {
+                        Intent i = new Intent(Intent.ACTION_PICK);
+                        i.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
+                        startActivityForResult(i, SELECT_PHONE_NUMBER);
                     } else {
-                        view.findViewById(R.id.button_save_phone).setVisibility(View.VISIBLE);
+                        permissionCheck();
                     }
-                } catch (JSONException e) {
-                    try {
-                        JSONObject info;
-                        info = new JSONObject("{\"number1\":\"\",\"number2\":\"\",\"number3\":\"\"}");
-                        tinyDB.putString(getContext().getString(R.string.key_phone_numbers), info.toString());
-                    } catch (JSONException ignored) {
-                    }
+                } else if (item.getTitle().equals("Manual")) {
+                    android.app.AlertDialog alertDialog = new android.app.AlertDialog.Builder(getContext())
+                            .setView(R.layout.layout_edit_contact)
+                            .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                                dialog.dismiss();
+                            })
+                            .create();
+                    alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getActivity().getString(R.string.ok), (dialog, which) -> {
+                        EditText editName_ = alertDialog.findViewById(R.id.edit_contact_name);
+                        EditText editNumber_ = alertDialog.findViewById(R.id.edit_contact_number);
 
+                        String newName = editName_.getText().toString();
+                        String newNumber = editNumber_.getText().toString().replace(" ", "");
+                        ContactWrapper newContact = new ContactWrapper(newName, newNumber);
+
+                        ArrayList<String> savedContacts = tinyDB.getListString(getContext().getString(R.string.KEY_EMERGENCY_NUMBERS));
+                        ArrayList<String> newContacts = new ArrayList<>();
+                        for (String c : savedContacts) {
+                            try {
+                                JSONObject contactObject = new JSONObject(c);
+                                if (!newContact.sameAs(new ContactWrapper(contactObject))) {
+                                    newContacts.add(c);
+                                }
+                            } catch (Exception ignored) {
+
+                            }
+                        }
+                        newContacts.add(newContact.toString());
+                        tinyDB.putListString(getContext().getString(R.string.KEY_EMERGENCY_NUMBERS), newContacts);
+                        refreshContacts();
+                    });
+                    alertDialog.show();
                 }
-            }
+                return true;
+            });
 
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        };
-
-        editNumber1.removeTextChangedListener(phoneTextWatcher);
-        editNumber2.removeTextChangedListener(phoneTextWatcher);
-        editNumber3.removeTextChangedListener(phoneTextWatcher);
-
-        try {
-            JSONObject info = new JSONObject(tinyDB.getString(getContext().getString(R.string.key_phone_numbers)));
-            try {
-                editNumber1.setText(info.getString("number1"));
-                editNumber2.setText(info.getString("number2"));
-                editNumber3.setText(info.getString("number3"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        } catch (Exception ignored) {
-        }
-
-        editNumber1.addTextChangedListener(phoneTextWatcher);
-        editNumber2.addTextChangedListener(phoneTextWatcher);
-        editNumber3.addTextChangedListener(phoneTextWatcher);
-
-        view.findViewById(R.id.button_save_phone).setOnClickListener(v -> {
-            JSONObject info = new JSONObject();
-            try {
-                info.put("number1", editNumber1.getText());
-                info.put("number2", editNumber2.getText());
-                info.put("number3", editNumber3.getText());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            tinyDB.putString(getContext().getString(R.string.key_phone_numbers), info.toString());
-            v.setVisibility(View.GONE);
-            Toast.makeText(getContext(), "Saved", Toast.LENGTH_LONG).show();
-            Functions.getInstance().hideKeyboard(getActivity());
+            popup.show();//showing popup menu
         });
+
+        refreshContacts();
 
         return view;
+    }
+
+    void refreshContacts() {
+        ArrayList<String> savedContacts = tinyDB.getListString(getString(R.string.KEY_EMERGENCY_NUMBERS));
+        contactContainer.removeAllViews();
+        for (String contact : savedContacts) {
+            try {
+                ContactView contactView = new ContactView(getContext(), new ContactWrapper(new JSONObject(contact)));
+                contactView.setOnChange(this::refreshContacts);
+                contactContainer.addView(contactView);
+            } catch (JSONException ignored) {
+
+            }
+        }
+        contactContainer.invalidate();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -296,6 +310,77 @@ public class SettingsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public boolean hasPermissions(String... permissions) {
+        if (permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(getContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    void permissionCheck() {
+        // Here, thisActivity is the current activity
+        if (!hasPermissions(READ_CONTACTS_PERMISSIONS)) {
+            new AlertDialog.Builder(getContext())
+                    .setMessage("This app need contact reading permission in able to pick contact, please grant the permission")
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.ok, (dialog, which) -> {
+                        dialog.dismiss();
+                        ActivityCompat.requestPermissions(getActivity(),
+                                READ_CONTACTS_PERMISSIONS,
+                                PERMISSIONS_READ_CONTACTS);
+                    })
+                    .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .create()
+                    .show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSIONS_READ_CONTACTS) {
+            if ((grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                Intent i = new Intent(Intent.ACTION_PICK);
+                i.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
+                startActivityForResult(i, SELECT_PHONE_NUMBER);
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SELECT_PHONE_NUMBER && resultCode == RESULT_OK) {
+            // Get the URI and query the content provider for the phone number
+            Uri contactUri = data.getData();
+            String[] projection = new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.Contacts.DISPLAY_NAME};
+            Cursor cursor = getContext().getContentResolver().query(contactUri, projection,
+                    null, null, null);
+
+            // If the cursor returned is valid, get the phone number
+            if (cursor != null && cursor.moveToFirst()) {
+                int numberIndex = cursor.getColumnIndex(projection[0]);
+                int nameIndex = cursor.getColumnIndex(projection[1]);
+                String number = cursor.getString(numberIndex).replace(" ", "");
+                String name = cursor.getString(nameIndex);
+
+                ContactView contactView = new ContactView(getContext(), new ContactWrapper(name, number));
+                contactView.setOnChange(this::refreshContacts);
+                contactContainer.addView(contactView);
+
+                cursor.close();
+            }
+        }
     }
 
     /**

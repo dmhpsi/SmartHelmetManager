@@ -83,5 +83,6 @@
 
     <style name="TransparentButton" parent="Base.TextAppearance.AppCompat.Widget.Button.Borderless.Colored">
         <item name="android:backgroundTint">@color/colorTransparent</item>
+        <item name="android:foregroundTint">@color/colorPrimary</item>
     </style>
 </resources>

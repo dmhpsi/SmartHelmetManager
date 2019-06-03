@@ -34,4 +34,7 @@ dependencies {
     implementation 'com.github.neild001:SeekArc:83ecbbd5be9b9ae5780dc6d78cf952001091a6fb'
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
     implementation 'com.google.android.gms:play-services-vision:17.0.2'
+    implementation 'com.google.android.gms:play-services-gcm:16.1.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'io.nlopez.smartlocation:library:3.3.3'
 }

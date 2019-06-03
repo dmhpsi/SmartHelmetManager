@@ -109,7 +109,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-
         <RelativeLayout
             style="@style/Header"
             android:layout_width="match_parent"
@@ -120,12 +119,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="Emergency Number"
+                android:text="Emergency Contacts"
                 android:textColor="@color/colorBlack"
                 android:textSize="20sp" />
 
             <ImageButton
-                android:id="@+id/button_save_phone"
+                android:id="@+id/button_add_contacts"
                 style="@style/TransparentButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -137,55 +136,19 @@
                 android:paddingEnd="10dp"
                 android:paddingBottom="0dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_save"
-                android:tint="@color/colorBlack"
-                android:visibility="gone" />
+                android:src="@drawable/ic_add"
+                android:tint="@color/colorBlack" />
 
         </RelativeLayout>
 
         <LinearLayout
-            style="@style/Content"
+            android:id="@+id/layout_contacts_container"
             android:layout_width="match_parent"
+            style="@style/Content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:labelFor="@id/edit_number_1"
-                android:text="Phone number #1" />
-
-            <EditText
-                android:id="@+id/edit_number_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:labelFor="@id/edit_number_2"
-                android:text="Phone number #2" />
-
-            <EditText
-                android:id="@+id/edit_number_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:labelFor="@id/edit_number_3"
-                android:text="Phone number #3" />
-
-            <EditText
-                android:id="@+id/edit_number_3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone" />
         </LinearLayout>
-
         <TextView
             style="@style/Footer"
             android:layout_width="match_parent"

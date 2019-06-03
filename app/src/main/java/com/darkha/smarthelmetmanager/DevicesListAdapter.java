@@ -1,9 +1,7 @@
 package com.darkha.smarthelmetmanager;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,87 +9,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-class ListDataWrapper {
-    private String deviceAddress;
-    private String deviceName;
-    private boolean recognized;
-    private long lastConnectedTime;
-
-    public ListDataWrapper(String deviceName, String deviceAddress, boolean recognized, long lastConnectedTime) {
-        this.deviceName = deviceName;
-        this.deviceAddress = deviceAddress;
-        this.recognized = recognized;
-        this.lastConnectedTime = lastConnectedTime;
-    }
-
-    public ListDataWrapper(JSONObject object) {
-        try {
-            this.deviceName = object.getString("name");
-            this.deviceAddress = object.getString("address");
-            this.recognized = object.getBoolean("recognized");
-            this.lastConnectedTime = object.getLong("last_time");
-        } catch (JSONException e) {
-//            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-        if (obj != null) {
-            if (obj.getClass().equals(this.getClass())) {
-                return this.getAddress().equals(((ListDataWrapper) obj).getAddress());
-            }
-        }
-        return false;
-    }
-
-    String getName() {
-        return deviceName;
-    }
-
-    String getAddress() {
-        return deviceAddress;
-    }
-
-    long getLastConnectedTimestamp() {
-        return lastConnectedTime;
-    }
-
-    String getLastConnectedTime() {
-        return DateFormat.format("hh:mm dd/MM/yyyy", new Date(lastConnectedTime)).toString();
-    }
-
-    public boolean isRecognized() {
-        return recognized;
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return toJSON().toString();
-    }
-
-    @NonNull
-    public JSONObject toJSON() {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("name", deviceName);
-            jsonObject.put("address", deviceAddress);
-            jsonObject.put("recognized", recognized);
-            jsonObject.put("last_time", lastConnectedTime);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
-    }
-}
 
 public class DevicesListAdapter extends BaseAdapter {
     private static LayoutInflater inflater = null;
@@ -114,7 +33,7 @@ public class DevicesListAdapter extends BaseAdapter {
 
     private boolean contains(ListDataWrapper wrapper) {
         for (ListDataWrapper item : data) {
-            if (item.equals(wrapper)) {
+            if (item.sameAs(wrapper)) {
                 return true;
             }
         }

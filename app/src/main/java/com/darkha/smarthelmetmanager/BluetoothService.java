@@ -34,7 +34,7 @@ public class BluetoothService extends Service {
         if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
             Log.i(LOG_TAG, "Received Start Foreground Intent");
 
-            Intent notificationIntent = getIntent(getApplicationContext(), JobActivity.class);
+            Intent notificationIntent = getIntent(getApplicationContext(), MainActivity.class);
 
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                     notificationIntent, 0);

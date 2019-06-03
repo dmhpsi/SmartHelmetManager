@@ -19,7 +19,7 @@ enum DeviceState {
     AUTHENTICATED
 }
 
-public class JobActivity extends AppCompatActivity implements DevicesFragment.OnFragmentInteractionListener,
+public class MainActivity extends AppCompatActivity implements DevicesFragment.OnFragmentInteractionListener,
         HomeFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener {
 
@@ -73,7 +73,7 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
-                Functions.getInstance().hideKeyboard(JobActivity.this);
+                Functions.getInstance().hideKeyboard(MainActivity.this);
 
             }
 
@@ -139,16 +139,15 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
         return true;
     }
 
-
     void permissionCheck() {
         // Here, thisActivity is the current activity
         if (!hasPermissions(PERMISSIONS)) {
-            new AlertDialog.Builder(JobActivity.this)
+            new AlertDialog.Builder(MainActivity.this)
                     .setMessage("This app need to access location service and send SMS in emergency situation. Please grant these permissions.")
                     .setCancelable(false)
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         dialog.dismiss();
-                        ActivityCompat.requestPermissions(JobActivity.this,
+                        ActivityCompat.requestPermissions(MainActivity.this,
                                 PERMISSIONS,
                                 PERMISSIONS_ALL);
                     })
@@ -193,7 +192,7 @@ public class JobActivity extends AppCompatActivity implements DevicesFragment.On
         if (viewPager.getCurrentItem() != 1) {
             viewPager.setCurrentItem(1);
         } else {
-            JobActivity.this.moveTaskToBack(true);
+            MainActivity.this.moveTaskToBack(true);
         }
     }
 

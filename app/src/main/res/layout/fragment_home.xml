@@ -200,40 +200,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!--<LinearLayout-->
-        <!--style="@style/Segment"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:orientation="vertical">-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/text_results"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
-
-        <!--<FrameLayout-->
-        <!--android:id="@+id/frame_canvas"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="300dp">-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/text1"-->
-        <!--android:layout_width="50dp"-->
-        <!--android:layout_height="50dp"-->
-        <!--android:background="@color/colorFlying" />-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/text2"-->
-        <!--android:layout_width="50dp"-->
-        <!--android:layout_height="50dp"-->
-        <!--android:background="@color/colorFlying" />-->
-
-        <!--<TextView-->
-        <!--android:id="@+id/text_angle"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="center" />-->
-        <!--</FrameLayout>-->
-        <!--</LinearLayout>-->
+        <Button
+            android:id="@+id/button_testAlarm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="test alarm" />
     </LinearLayout>
 </ScrollView>

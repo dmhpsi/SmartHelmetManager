@@ -183,6 +183,11 @@ public class HomeFragment extends Fragment {
             dialogFragment.show(getActivity().getSupportFragmentManager(), null);
         });
 
+        view.findViewById(R.id.button_testAlarm).setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), AlarmActivity.class);
+            startActivity(intent);
+        });
+
         bluetooth.addOnMessages(message -> {
             if (message.startsWith("warning")) {
                 Intent intent = new Intent(getContext(), PreAlarmActivity.class);

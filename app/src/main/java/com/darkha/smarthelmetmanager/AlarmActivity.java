@@ -1,11 +1,16 @@
 package com.darkha.smarthelmetmanager;
 
 import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -13,60 +18,91 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
+import io.nlopez.smartlocation.SmartLocation;
+
 public class AlarmActivity extends AppCompatActivity {
+    private static final long LOCATION_REFRESH_TIME = 100;
+    private static final float LOCATION_REFRESH_DISTANCE = 1f;
     MediaPlayer alarmPlayer;
     AudioManager audioManager;
+    Double longitude, latitude;
+    private final LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            //your code here
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+            Log.e("LONGLAT", " " + longitude + " " + latitude);
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
+
+
     int preVolume;
 
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
         TinyDB tinyDB = new TinyDB(this);
+
+        SmartLocation.with(this).location()
+                .oneFix()
+                .start(location -> {
+                    longitude = location.getLongitude();
+                    latitude = location.getLatitude();
+                });
 
         findViewById(R.id.button_rescue).setOnLongClickListener(v -> {
             finish();
             return false;
         });
         TextView textContact = findViewById(R.id.text_numbers);
-        String message = "Contacted to:";
-        String number1, number2, number3;
-        try {
-            JSONObject info = new JSONObject(tinyDB.getString(getString(R.string.key_phone_numbers)));
+        String message = "Contacted to:\n";
+
+        ArrayList<String> savedContacts = tinyDB.getListString(getString(R.string.KEY_EMERGENCY_NUMBERS));
+        ArrayList<String> infoList = new ArrayList<>();
+        ArrayList<String> numberList = new ArrayList<>();
+
+        for (String contact : savedContacts) {
             try {
-                number1 = info.getString("number1");
-                if (!TextUtils.isEmpty(number1)) {
-                    message += "\n" + number1;
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+                JSONObject object = new JSONObject(contact);
+                String name = object.getString("name");
+                String number = object.getString("number");
+                String infoContact = name + " - " + number;
+                numberList.add(number);
+                infoList.add(infoContact);
+            } catch (Exception ignored) {
+
             }
-            try {
-                number2 = info.getString("number2");
-                if (!TextUtils.isEmpty(number2)) {
-                    message += "\n" + number2;
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            try {
-                number3 = info.getString("number3");
-                if (!TextUtils.isEmpty(number3)) {
-                    message += "\n" + number3;
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
+        message += TextUtils.join("\n", infoList);
+
         textContact.setText(message);
 
         message = "User Info:";
 
-        String name, address, allergy, blood;
+        String name = "user", address, allergy, blood;
         try {
-            JSONObject info = new JSONObject(tinyDB.getString(getString(R.string.key_user_info)));
+            JSONObject info = new JSONObject(tinyDB.getString(getString(R.string.KEY_USER_INFO)));
             try {
                 name = info.getString("name");
                 if (!TextUtils.isEmpty(name)) {
@@ -103,6 +139,37 @@ public class AlarmActivity extends AppCompatActivity {
 
         TextView userInfo = findViewById(R.id.text_info);
         userInfo.setText(message);
+
+        final Handler handler = new Handler();
+        String finalName = name;
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.e("Alarm", "Run");
+                boolean messageSent = false;
+                try {
+                    SmsManager smsManager = SmsManager.getDefault();
+                    String textMessage = "Emergency happens with " + finalName + " at location http://maps.google.com/?q=" + latitude + "," + longitude;
+                    ArrayList<String> parts = smsManager.divideMessage(textMessage);
+
+                    if (longitude != null && latitude != null) {
+                        for (String number : numberList) {
+                            smsManager.sendMultipartTextMessage(number, null, parts, null, null);
+                            Log.e("Alarm", "Messages to " + number + " :" + textMessage);
+                        }
+                        messageSent = true;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (!messageSent) {
+                        handler.postDelayed(this, 1000);
+                    }
+                }
+            }
+        };
+        handler.post(runnable);
+
 
         alarmPlayer = MediaPlayer.create(AlarmActivity.this, R.raw.alarm);
         alarmPlayer.setLooping(true);

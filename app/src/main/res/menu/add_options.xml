@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/add_manual"
+        android:title="Manual" />
+    <item
+        android:id="@+id/add_from_contacts"
+        android:title="From contacts" />
+</menu>
