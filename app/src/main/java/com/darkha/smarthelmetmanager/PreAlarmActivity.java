@@ -20,11 +20,18 @@ public class PreAlarmActivity extends AppCompatActivity {
     MediaPlayer preAlarmPlayer;
     int preVolume;
     Runnable runnable;
+    TinyDB tinyDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pre_alarm);
+        tinyDB = new TinyDB(this);
+
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            LogDatabase.getInstance(this).logDao().addLog(new AppLog("safety",
+                    "Emergency warning"));
+        });
 
         preAlarmPlayer = MediaPlayer.create(PreAlarmActivity.this, R.raw.pre_alarm);
 
@@ -77,6 +84,13 @@ public class PreAlarmActivity extends AppCompatActivity {
         handler.post(runnable);
 
         findViewById(R.id.button_cancel).setOnClickListener(v -> {
+
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                LogDatabase.getInstance(this).logDao().addLog(new AppLog("safety",
+                        "Emergency warning canceled by user"));
+            });
+
+            handler.removeCallbacks(runnable);
             finish();
         });
     }

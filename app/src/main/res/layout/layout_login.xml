@@ -6,11 +6,10 @@
     android:padding="20dp">
 
     <TextView
-        android:id="@+id/text_dialog_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="@string/contact_info"
+        android:text="Login"
         android:textAlignment="center"
         android:textColor="@color/colorBlack"
         android:textSize="20sp" />
@@ -18,20 +17,21 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/contact_name" />
+        android:text="Username" />
 
     <EditText
-        android:id="@+id/edit_contact_name"
+        android:id="@+id/edit_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/contact_number" />
+        android:text="Password" />
 
     <EditText
-        android:id="@+id/edit_contact_number"
+        android:id="@+id/edit_password"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:inputType="textPassword" />
 </LinearLayout>

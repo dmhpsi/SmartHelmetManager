@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorRed"
+    android:background="@color/colorYellow"
     android:orientation="vertical"
     tools:context=".PreAlarmActivity">
 
@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/countdown_value"
-            android:textColor="@color/colorRed"
+            android:textColor="@color/colorYellow"
             android:textSize="60sp" />
     </FrameLayout>
 

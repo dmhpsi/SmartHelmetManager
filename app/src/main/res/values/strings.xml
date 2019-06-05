@@ -82,4 +82,7 @@
     <string name="contact_number">Contact number</string>
     <string name="contacted_to">Contacted to</string>
     <string name="user_info">User info</string>
+    <string name="title_activity_log_view">LogViewActivity</string>
+    <string name="tab_text_1">Safety Log</string>
+    <string name="tab_text_2">Device Log</string>
 </resources>

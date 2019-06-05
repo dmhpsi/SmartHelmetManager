@@ -42,6 +42,10 @@ public class AlarmActivity extends AppCompatActivity {
                 });
 
         findViewById(R.id.button_rescue).setOnLongClickListener(v -> {
+
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                LogDatabase.getInstance(this).logDao().addLog(new AppLog("safety", "User rescued"));
+            });
             finish();
             return false;
         });
@@ -124,6 +128,11 @@ public class AlarmActivity extends AppCompatActivity {
                     ArrayList<String> parts = smsManager.divideMessage(textMessage);
 
                     if (longitude != null && latitude != null) {
+
+                        AppExecutors.getInstance().diskIO().execute(() -> {
+                            LogDatabase.getInstance(getApplicationContext()).logDao().addLog(new AppLog("safety",
+                                    "Emergency alarm, location @" + latitude + "," + longitude));
+                        });
                         for (String number : numberList) {
                             smsManager.sendMultipartTextMessage(number, null, parts, null, null);
                             Log.e("Alarm", "Messages to " + number + " :" + textMessage);

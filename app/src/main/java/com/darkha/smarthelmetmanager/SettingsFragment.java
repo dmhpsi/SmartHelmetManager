@@ -14,17 +14,29 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.common.Priority;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,6 +73,8 @@ public class SettingsFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private BluetoothHandler bluetooth;
     private TinyDB tinyDB;
+    private Button loginButton;
+    private RelativeLayout accountContainer;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -264,7 +278,102 @@ public class SettingsFragment extends Fragment {
 
         refreshContacts();
 
+        loginButton = view.findViewById(R.id.button_login);
+        accountContainer = view.findViewById(R.id.layout_user_account);
+        String username = tinyDB.getString("username");
+        Log.e("AWWWWWWWWWW", "USERNAME:" + username);
+        setLoginStatus(!TextUtils.isEmpty(username));
+
+        ImageButton logoutButton = view.findViewById(R.id.button_logout);
+        logoutButton.setOnClickListener(v -> {
+            tinyDB.putString("username", "");
+            setLoginStatus(false);
+        });
+        AndroidNetworking.initialize(getContext());
+        loginButton.setOnClickListener(v -> {
+            android.app.AlertDialog alertDialog = new android.app.AlertDialog.Builder(getContext())
+                    .setView(R.layout.layout_login)
+                    .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .setCancelable(false)
+                    .create();
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getActivity().getString(R.string.ok), (dialog, which) -> {
+                EditText editUsername = alertDialog.findViewById(R.id.edit_username);
+                EditText editPassword = alertDialog.findViewById(R.id.edit_password);
+                String username_ = editUsername.getText().toString();
+                String password_ = editPassword.getText().toString();
+                JsonObject object = new JsonObject();
+                object.addProperty("username", username_);
+                object.addProperty("password", password_);
+                AlertDialog loggingInDialog = new AlertDialog.Builder(getContext())
+                        .setCancelable(false)
+                        .setView(R.layout.progressbar_layout)
+                        .setMessage("Logging in...")
+                        .setPositiveButton(R.string.cancel, (dialog12, which12) -> {
+                            AndroidNetworking.cancel("login");
+                            dialog12.dismiss();
+                        })
+                        .create();
+                loggingInDialog.show();
+                AlertDialog failedDialog = new AlertDialog.Builder(getContext())
+                        .setCancelable(false)
+                        .setMessage("Login failed, please try again")
+                        .setPositiveButton(R.string.ok, (dialog1, which1) -> {
+                            dialog1.dismiss();
+                        })
+                        .create();
+                AndroidNetworking.post("http://darkha.pythonanywhere.com/api_login")
+                        .addStringBody(object.toString())
+                        .setTag("login")
+                        .setPriority(Priority.MEDIUM)
+                        .build()
+                        .getAsJSONObject(new JSONObjectRequestListener() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                // do anything with response
+                                Log.e("WWWWWWWW", response.toString());
+                                loggingInDialog.dismiss();
+                                try {
+                                    if (response.getString("result").equals("ok")) {
+                                        tinyDB.putString("username", username_);
+                                        Toast.makeText(getContext(), "Login successful", Toast.LENGTH_LONG).show();
+                                        setLoginStatus(true);
+                                    } else {
+                                        failedDialog.show();
+                                    }
+                                } catch (JSONException ignored) {
+
+                                }
+
+                            }
+
+                            @Override
+                            public void onError(ANError error) {
+                                // handle error
+                                Log.e("WWWWWWWW", error.getErrorDetail());
+                                loggingInDialog.dismiss();
+                                failedDialog.show();
+                            }
+                        });
+            });
+
+            alertDialog.show();
+        });
+
         return view;
+    }
+
+    void setLoginStatus(boolean isLoggedIn) {
+        if (isLoggedIn) {
+            loginButton.setVisibility(View.GONE);
+            accountContainer.setVisibility(View.VISIBLE);
+            TextView usernameView = accountContainer.findViewById(R.id.text_username);
+            usernameView.setText(tinyDB.getString("username"));
+        } else {
+            loginButton.setVisibility(View.VISIBLE);
+            accountContainer.setVisibility(View.GONE);
+        }
     }
 
     void refreshContacts() {

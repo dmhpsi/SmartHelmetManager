@@ -29,16 +29,6 @@ import java.util.UUID;
 
 import static android.support.constraint.Constraints.TAG;
 
-class ThreadHelper {
-    public static void run(boolean runOnUi, Activity activity, Runnable runnable) {
-        if (runOnUi) {
-            activity.runOnUiThread(runnable);
-        } else {
-            runnable.run();
-        }
-    }
-}
-
 public class BluetoothHandler {
     private static final int REQUEST_ENABLE_BT = 1111;
     Handler tempHumidHandler;
@@ -402,6 +392,10 @@ public class BluetoothHandler {
                     isSuppressDisconnectCallback = false;
                 }
             });
+
+            LogDatabase.getInstance(context).logDao().addLog(new AppLog("device",
+                    "Disconnected with " + device.getName() + ", " + device.getAddress()));
+
             if (onDeviceDisconnected != null) {
                 ThreadHelper.run(runOnUi, activity, () -> {
                     onDeviceDisconnected.onEvent(device, e.getMessage());
@@ -536,6 +530,9 @@ public class BluetoothHandler {
                     if (onDeviceAuthenticated != null) {
                         onDeviceAuthenticated.onEvent(device);
                     }
+                    LogDatabase.getInstance(context).logDao().addLog(new AppLog("device",
+                            "Connected with " + device.getName() + ", " + device.getAddress()));
+
                     ThreadHelper.run(true, activity, () -> {
                         authDialog.dismiss();
                         if (onDeviceConnected != null) {
@@ -603,6 +600,9 @@ public class BluetoothHandler {
                         isSuppressDisconnectCallback = false;
                     }
                 });
+                LogDatabase.getInstance(context).logDao().addLog(new AppLog("device",
+                        "Disconnected with " + device.getName() + ", " + device.getAddress()));
+
                 if (onDeviceDisconnected != null) {
                     ThreadHelper.run(runOnUi, activity, () -> {
                         onDeviceDisconnected.onEvent(device, e.getMessage());
