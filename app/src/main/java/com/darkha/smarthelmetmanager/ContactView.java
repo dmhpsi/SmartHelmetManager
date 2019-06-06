@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.telephony.PhoneNumberUtils;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,8 +23,6 @@ public class ContactView extends LinearLayout {
 
     public ContactView(Context context, ContactWrapper contact) {
         super(context);
-
-        Log.e("EWWWWWW", contact.toString());
 
         LinearLayout.inflate(context, R.layout.layout_contact_view, this);
         TextView contactNameView = this.findViewById(R.id.text_contact_name);
@@ -49,6 +46,7 @@ public class ContactView extends LinearLayout {
                 }
             }
             newContacts.add(contact.toString());
+            tinyDB.putLong("contact_time", System.currentTimeMillis() / 1000);
             tinyDB.putListString(context.getString(R.string.KEY_EMERGENCY_NUMBERS), newContacts);
         } else {
             this.setVisibility(GONE);
@@ -69,6 +67,7 @@ public class ContactView extends LinearLayout {
 
                             }
                         }
+                        tinyDB.putLong("contact_time", System.currentTimeMillis() / 1000);
                         tinyDB.putListString(context.getString(R.string.KEY_EMERGENCY_NUMBERS), newContacts);
                         if (onChange != null) {
                             onChange.run();
@@ -109,6 +108,7 @@ public class ContactView extends LinearLayout {
                     }
                 }
                 newContacts.add(newContact.toString());
+                tinyDB.putLong("contact_time", System.currentTimeMillis() / 1000);
                 tinyDB.putListString(context.getString(R.string.KEY_EMERGENCY_NUMBERS), newContacts);
                 if (onChange != null) {
                     onChange.run();

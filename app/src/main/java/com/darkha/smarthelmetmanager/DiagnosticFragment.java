@@ -85,6 +85,7 @@ public class DiagnosticFragment extends DialogFragment {
         final ImageView compass = view.findViewById(R.id.image_compass);
         TextView textAngle = view.findViewById(R.id.text_angle);
         TextView textBalance = view.findViewById(R.id.text_balance);
+
         if (bluetooth != null) {
             bluetooth.addOnMessages(message -> {
                 if (message.startsWith("ang")) {
@@ -111,6 +112,7 @@ public class DiagnosticFragment extends DialogFragment {
                         float x = -Float.valueOf(vals.split(",")[0]);
                         float y = -Float.valueOf(vals.split(",")[1]);
                         float z = -Float.valueOf(vals.split(",")[2]);
+
                         if (x > 1) {
                             x = 1;
                         } else if (x < -1) {
@@ -127,9 +129,11 @@ public class DiagnosticFragment extends DialogFragment {
                             z = -1;
                         }
 
+
                         float finalX = -x;
                         float finalY = -y;
                         float finalZ = (float) (Math.acos(-z) * 180 / PI);
+
                         getActivity().runOnUiThread(() -> {
                             drop.animate().setDuration(100).translationX(finalX * width[0]);
                             drop.animate().setDuration(100).translationY(finalY * width[0]);
@@ -137,7 +141,6 @@ public class DiagnosticFragment extends DialogFragment {
                         });
 
                     } catch (Exception ignored) {
-
                     }
                 }
             });

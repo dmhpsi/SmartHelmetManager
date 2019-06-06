@@ -38,6 +38,7 @@ import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.gson.JsonObject;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -75,6 +76,12 @@ public class SettingsFragment extends Fragment {
     private TinyDB tinyDB;
     private Button loginButton;
     private RelativeLayout accountContainer;
+    EditText editName;
+    EditText editAddress;
+    EditText editAllergy;
+    EditText editBloodType;
+    List<String> bloodList;
+    Spinner spinnerBloodType;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -113,10 +120,10 @@ public class SettingsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        EditText editName = view.findViewById(R.id.edit_name);
-        EditText editAddress = view.findViewById(R.id.edit_address);
-        EditText editAllergy = view.findViewById(R.id.edit_allergy);
-        EditText editBloodType = view.findViewById(R.id.edit_blood_type);
+        editName = view.findViewById(R.id.edit_name);
+        editAddress = view.findViewById(R.id.edit_address);
+        editAllergy = view.findViewById(R.id.edit_allergy);
+        editBloodType = view.findViewById(R.id.edit_blood_type);
         contactContainer = view.findViewById(R.id.layout_contacts_container);
 
         String[] bloodTypes = new String[]{
@@ -130,13 +137,13 @@ public class SettingsFragment extends Fragment {
                 "AB Rh+",
                 "AB Rh-"
         };
-        List<String> bloodList = new ArrayList<>(Arrays.asList(bloodTypes));
+        bloodList = new ArrayList<>(Arrays.asList(bloodTypes));
         ArrayAdapter<String> bloodAdapter = new ArrayAdapter<>(
                 getActivity(),
                 R.layout.layout_spinner_item,
                 bloodList
         );
-        Spinner spinnerBloodType = view.findViewById(R.id.spinner_blood_type);
+        spinnerBloodType = view.findViewById(R.id.spinner_blood_type);
         spinnerBloodType.setAdapter(bloodAdapter);
         spinnerBloodType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -219,6 +226,8 @@ public class SettingsFragment extends Fragment {
             }
 
             tinyDB.putString(getContext().getString(R.string.KEY_USER_INFO), info.toString());
+            tinyDB.putLong("info_time", System.currentTimeMillis() / 1000);
+            syncData("info");
             v.setVisibility(View.GONE);
             Toast.makeText(getContext(), "Saved", Toast.LENGTH_LONG).show();
             Functions.getInstance().hideKeyboard(getActivity());
@@ -265,6 +274,7 @@ public class SettingsFragment extends Fragment {
                             }
                         }
                         newContacts.add(newContact.toString());
+                        tinyDB.putLong("contact_time", System.currentTimeMillis() / 1000);
                         tinyDB.putListString(getContext().getString(R.string.KEY_EMERGENCY_NUMBERS), newContacts);
                         refreshContacts();
                     });
@@ -280,16 +290,26 @@ public class SettingsFragment extends Fragment {
 
         loginButton = view.findViewById(R.id.button_login);
         accountContainer = view.findViewById(R.id.layout_user_account);
-        String username = tinyDB.getString("username");
-        Log.e("AWWWWWWWWWW", "USERNAME:" + username);
-        setLoginStatus(!TextUtils.isEmpty(username));
+
+        setLoginStatus(tinyDB.getBoolean("loggedin"));
 
         ImageButton logoutButton = view.findViewById(R.id.button_logout);
         logoutButton.setOnClickListener(v -> {
-            tinyDB.putString("username", "");
-            setLoginStatus(false);
+            new AlertDialog.Builder(getContext())
+                    .setMessage("Are your sure want to log out? Synchronization will be disabled.")
+                    .setPositiveButton("Log out", (dialog, which) -> {
+                        tinyDB.putString("username", "");
+                        tinyDB.putBoolean("loggedin", false);
+                        tinyDB.putLong("info_time", 0);
+                        tinyDB.putLong("contact_time", 0);
+                        setLoginStatus(false);
+                    })
+                    .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .create()
+                    .show();
         });
-        AndroidNetworking.initialize(getContext());
         loginButton.setOnClickListener(v -> {
             android.app.AlertDialog alertDialog = new android.app.AlertDialog.Builder(getContext())
                     .setView(R.layout.layout_login)
@@ -337,8 +357,14 @@ public class SettingsFragment extends Fragment {
                                 try {
                                     if (response.getString("result").equals("ok")) {
                                         tinyDB.putString("username", username_);
+                                        tinyDB.putString("password", password_);
                                         Toast.makeText(getContext(), "Login successful", Toast.LENGTH_LONG).show();
+                                        tinyDB.putBoolean("loggedin", true);
                                         setLoginStatus(true);
+                                        tinyDB.putLong("info_time", 0);
+                                        tinyDB.putLong("contact_time", 0);
+                                        syncData("info");
+                                        syncData("contacts");
                                     } else {
                                         failedDialog.show();
                                     }
@@ -389,6 +415,7 @@ public class SettingsFragment extends Fragment {
             }
         }
         contactContainer.invalidate();
+        syncData("contacts");
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -486,9 +513,161 @@ public class SettingsFragment extends Fragment {
                 ContactView contactView = new ContactView(getContext(), new ContactWrapper(name, number));
                 contactView.setOnChange(this::refreshContacts);
                 contactContainer.addView(contactView);
+                syncData("contacts");
 
                 cursor.close();
             }
+        }
+    }
+
+    public void syncData(String type) {
+        if (type.equals("info")) {
+            String data = tinyDB.getString(getContext().getString(R.string.KEY_USER_INFO));
+            String username = tinyDB.getString("username");
+            String password = tinyDB.getString("password");
+            long timestamp = tinyDB.getLong("info_time", 0);
+            if (TextUtils.isEmpty(data)) {
+                data = "";
+            }
+            if (TextUtils.isEmpty(username)) {
+                username = "";
+            }
+            if (TextUtils.isEmpty(password)) {
+                password = "";
+            }
+            JsonObject object = new JsonObject();
+            object.addProperty("username", username);
+            object.addProperty("password", password);
+            object.addProperty("data", data);
+            object.addProperty("timestamp", timestamp);
+
+            AndroidNetworking.post("http://darkha.pythonanywhere.com/api_sync_info")
+                    .addStringBody(object.toString())
+                    .setTag("login")
+                    .setPriority(Priority.MEDIUM)
+                    .build()
+                    .getAsJSONObject(new JSONObjectRequestListener() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            // do anything with response
+                            Log.e("WWWWWWWW", response.toString());
+                            try {
+                                if (response.getString("result").equals("ok")) {
+                                    String resData = response.get("data").toString();
+                                    long resTimestamp = response.getLong("timestamp");
+                                    tinyDB.putString(getContext().getString(R.string.KEY_USER_INFO), resData);
+                                    tinyDB.putLong("info_time", resTimestamp);
+
+                                    try {
+                                        JSONObject info = new JSONObject(tinyDB.getString(getContext().getString(R.string.KEY_USER_INFO)));
+                                        editName.setText(info.getString("name"));
+                                        editAddress.setText(info.getString("address"));
+                                        editAllergy.setText(info.getString("allergy"));
+                                        editBloodType.setText(info.getString("blood-type"));
+                                        int bloodIndex = bloodList.indexOf(info.getString("blood-type"));
+                                        if (bloodIndex > -1) {
+                                            spinnerBloodType.setSelection(bloodIndex);
+                                        }
+                                    } catch (Exception ignored) {
+                                    }
+
+                                    Toast.makeText(getContext(), "Sync successful", Toast.LENGTH_LONG).show();
+                                    setLoginStatus(true);
+                                } else {
+                                }
+                            } catch (JSONException ignored) {
+
+                            }
+                        }
+
+                        @Override
+                        public void onError(ANError error) {
+                            // handle error
+                            Log.e("WWWWWWWW", error.getErrorDetail());
+                        }
+                    });
+
+        }
+        if (type.equals("contacts")) {
+            String data = "";
+            ArrayList<String> dataList = tinyDB.getListString(getContext().getString(R.string.KEY_EMERGENCY_NUMBERS));
+            JSONArray dataArray = new JSONArray();
+            for (String c : dataList) {
+                try {
+                    JSONObject x;
+                    x = new JSONObject(c);
+                    dataArray.put(x);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            data = dataArray.toString();
+            Log.e("SYNC CONTACT", "data: " + data);
+
+            String username = tinyDB.getString("username");
+            String password = tinyDB.getString("password");
+            long timestamp = tinyDB.getLong("contact_time", 0);
+            if (TextUtils.isEmpty(data)) {
+                data = "";
+            }
+            if (TextUtils.isEmpty(username)) {
+                username = "";
+            }
+            if (TextUtils.isEmpty(password)) {
+                password = "";
+            }
+            JsonObject object = new JsonObject();
+            object.addProperty("username", username);
+            object.addProperty("password", password);
+            object.addProperty("data", data);
+            object.addProperty("timestamp", timestamp);
+
+            AndroidNetworking.post("http://darkha.pythonanywhere.com/api_sync_contacts")
+                    .addStringBody(object.toString())
+                    .setTag("login")
+                    .setPriority(Priority.MEDIUM)
+                    .build()
+                    .getAsJSONObject(new JSONObjectRequestListener() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            // do anything with response
+                            Log.e("SYNC CONTACT", response.toString());
+                            try {
+                                if (response.getString("result").equals("ok")) {
+                                    String resData = response.get("data").toString();
+                                    long resTimestamp = response.getLong("timestamp");
+                                    if (resTimestamp > timestamp) {
+                                        try {
+                                            JSONArray jsonArray = new JSONArray(resData);
+                                            ArrayList<String> listData = new ArrayList<>();
+                                            for (int i = 0; i < jsonArray.length(); i++) {
+                                                listData.add(jsonArray.get(i).toString());
+                                            }
+                                            tinyDB.putLong("contact_time", resTimestamp);
+                                            tinyDB.putListString(getContext().getString(R.string.KEY_EMERGENCY_NUMBERS), listData);
+                                            refreshContacts();
+                                        } catch (Exception ignored) {
+                                            ignored.printStackTrace();
+                                        }
+                                    }
+
+                                    Toast.makeText(getContext(), "Sync successful", Toast.LENGTH_LONG).show();
+                                    setLoginStatus(true);
+                                } else {
+                                }
+                            } catch (JSONException ignored) {
+
+                                Log.e("SYNC CONTACT", "Exception");
+                            }
+                        }
+
+                        @Override
+                        public void onError(ANError error) {
+                            // handle error
+                            Log.e("SYNC CONTACT", error.getErrorDetail());
+                        }
+                    });
+
         }
     }
 

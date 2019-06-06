@@ -12,6 +12,16 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.common.Priority;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.google.gson.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 enum DeviceState {
     UNAUTHENTICATED,
@@ -42,6 +52,41 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        tinyDB = new TinyDB(this);
+        AndroidNetworking.initialize(this);
+        JsonObject loginObject = new JsonObject();
+        String username = tinyDB.getString("username");
+        String password = tinyDB.getString("password");
+        loginObject.addProperty("username", username);
+        loginObject.addProperty("password", password);
+        AndroidNetworking.post("http://darkha.pythonanywhere.com/api_login")
+                .addStringBody(loginObject.toString())
+                .setTag("login")
+                .setPriority(Priority.MEDIUM)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // do anything with response
+                        Log.e("WWWWWWWW", response.toString());
+                        try {
+                            if (response.getString("result").equals("ok")) {
+                                Toast.makeText(getApplicationContext(), "Login successful", Toast.LENGTH_LONG).show();
+                                tinyDB.putBoolean("loggedin", true);
+                                return;
+                            }
+                        } catch (JSONException ignored) {
+
+                        }
+                        tinyDB.putBoolean("loggedin", false);
+                    }
+
+                    @Override
+                    public void onError(ANError error) {
+                    }
+                });
+
+
         setContentView(R.layout.activity_job);
 
         permissionCheck();
@@ -50,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements DevicesFragment.O
             bluetooth = new BluetoothHandler(this);
         }
         Log.e(TAG, "Connected: " + bluetooth.isConnected());
-        tinyDB = new TinyDB(this);
 
         viewPager = findViewById(R.id.viewpager);
         bottomNavigationView = findViewById(R.id.navigation);
